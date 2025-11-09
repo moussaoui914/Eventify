@@ -7,6 +7,10 @@ let archive = [];
 
 // Save/load from localStorage
 function loadData() {
+    const savedEvents = localStorage.getItem('events');
+    const savedArchive = localStorage.getItem('archive');
+    events = savedEvents ? JSON.parse(savedEvents) : [];
+    archive = savedArchive ? JSON.parse(savedArchive) : [];
     // TODO: Load events and archive from localStorage
     // JSON.parse(localStorage.getItem('events'))
 }
@@ -14,6 +18,8 @@ function loadData() {
 function saveData() {
     // TODO: Save events and archive to localStorage
     // localStorage.setItem('events', JSON.stringify(events))
+    localStorage.setItem('events', JSON.stringify(events));
+    localStorage.setItem('archive', JSON.stringify(archive));
 }
 
 // ============================================
@@ -29,8 +35,13 @@ function switchScreen(screenId) {
     // 5. Update #page-title and #page-subtitle based on screenId
     let sidebar__btn = document.querySelectorAll(".sidebar__btn");
     let screen = document.querySelectorAll(".screen");
-    console.log(screen);
-
+      for(el of screen){
+            if(el.dataset.screen === screenId){
+                el.classList.add("is-visible");
+            }else {
+                el.classList.remove("is-visible");
+            }
+    }
     for(ele of sidebar__btn){
             if(ele.dataset.screen === screenId){
                 ele.classList.add("is-active");
@@ -38,6 +49,30 @@ function switchScreen(screenId) {
                 ele.classList.remove("is-active");
             }
     }
+
+
+    const title = document.getElementById('page-title');
+    const subtitle = document.getElementById('page-subtitle');
+    switch (screenId) {
+        case 'stats':
+            title.innerHTML = 'Statistics';
+            subtitle.innerHTML = 'Overview of your events';
+            renderStats();
+            break;
+        case 'add':
+            title.innerHTML = 'Add Event';
+            subtitle.innerHTML = 'Create a new event';
+            break;
+        case 'list':
+            title.innerHTML = 'Events';
+            subtitle.innerHTML = 'Manage your events';
+            break;
+        case 'archive':
+            title.innerHTML = 'Archive';
+            subtitle.innerHTML = 'Archived events';
+            break;
+    }
+
 }
 
     // let screen = document.querySelectorAll(".screen");
@@ -73,23 +108,97 @@ function renderStats() {
 // ============================================
 // ADD EVENT FORM
 // ============================================
+//     const form = document.getElementById("event-form");
+
+// form.addEventListener("submit", (e) =>{
+//     handleFormSubmit(e);
+// });
 
 function handleFormSubmit(e) {
     // TODO:
     // 1. Prevent default
     // 2. Validate form inputs
+    e.preventDefault();
+const errorBox = document.getElementById("form-errors");
+
+  errorBox.innerHTML = "";
+  errorBox.classList.add("is-hidden");
+
+  const title = document.getElementById("event-title").value.trim();
+  const image = document.getElementById("event-image").value.trim();
+  const seats = document.getElementById("event-seats").value.trim();
+  const price = document.getElementById("event-price").value.trim();
+
+  const regexTitle = /^[A-Za-z0-9 ]{3,}$/;
+  const regexURL = /^https?:\/\/.+/;
+  const regexNumber = /^[0-9]+(\.[0-9]+)?$/;
+
+  let errors = [];
+
+  if (!regexTitle.test(title)) {
+    errors.push("Le titre doit contenir au moins 3 caractères valides.");
+  }
+
+  if (image && !regexURL.test(image)) {
+    errors.push("L'URL de l'image doit commencer par http ou https.");
+  }
+
+  if (!regexNumber.test(seats) || parseInt(seats) < 1) {
+    errors.push("Le nombre de places doit être un nombre positif.");
+  }
+
+  if (!regexNumber.test(price) || parseFloat(price) < 0) {
+    errors.push("Le prix doit être un nombre valide supérieur ou égal à 0.");
+  }
+
+  if (errors.length > 0) {
+    errorBox.innerHTML = errors.join("<br>");
+    errorBox.classList.remove("is-hidden");
+  }
+            const newEvent = {
+    title: title,
+    image: image,
+    seats: parseInt(seats),
+    price: parseFloat(price),
+    dateCreated: new Date().toISOString(),
+  };
+
+     events.push(newEvent);
+     saveData();
+     renderStats();
+
+    alert("Formulaire valide !");
+    form.reset();
+};
+
     // 3. If valid: create new event object, add to events array, save data, reset form
     // 4. If invalid: show errors in #form-errors
-}
 
-// document.getElementById('event-form').addEventListener('submit', handleFormSubmit)
+let form = document.getElementById('event-form');
+form.addEventListener('submit', handleFormSubmit)
 
 function addVariantRow() {
     // TODO:
     // 1. Clone .variant-row template
     // 2. Append to #variants-list
     // 3. Add remove listener to new row's remove button
+    const list = document.getElementById('variants-list');
+    const row = document.createElement('div');
+    row.classList.add('variant-row');
+    row.innerHTML = `
+        <input type="text" class="input variant-row__name" placeholder="Variant name" />
+        <input type="number" class="input variant-row__qty" placeholder="Qty" min="1" />
+        <input type="number" class="input variant-row__value" placeholder="Value" step="0.01" />
+        <select class="select variant-row__type">
+            <option value="fixed">Fixed Price</option>
+            <option value="percentage">Percentage Off</option>
+        </select>
+        <button type="button" class="btn btn--danger btn--small variant-row__remove">Remove</button>   
+    `;
+    list.appendChild(row);
+    row.querySelector('.variant-row__remove').addEventListener('click', () => row.remove());
 }
+document.getElementById('btn-add-variant').addEventListener('click',addVariantRow);
 
 // document.getElementById('btn-add-variant').addEventListener('click', addVariantRow)
 
@@ -230,11 +339,48 @@ function sortEvents(eventList, sortType) {
 function init() {
     // TODO:
     // 1. Load data from localStorage
+    loadData();
+    renderStats();
     // 2. Render initial screen (statistics)
     // 3. Set up all event listeners
     // 4. Call renderStats(), renderEventsTable(), renderArchiveTable()
 }
 
 // Call on page load
-// document.addEventListener('DOMContentLoaded', init)</code></pre>
+document.addEventListener('DOMContentLoaded', init);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
