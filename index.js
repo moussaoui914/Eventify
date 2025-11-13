@@ -35,19 +35,19 @@ function switchScreen(screenId) {
     // 5. Update #page-title and #page-subtitle based on screenId
     let sidebar__btn = document.querySelectorAll(".sidebar__btn");
     let screen = document.querySelectorAll(".screen");
-      for(el of screen){
-            if(el.dataset.screen === screenId){
-                el.classList.add("is-visible");
-            }else {
-                el.classList.remove("is-visible");
-            }
+    for (el of screen) {
+        if (el.dataset.screen === screenId) {
+            el.classList.add("is-visible");
+        } else {
+            el.classList.remove("is-visible");
+        }
     }
-    for(ele of sidebar__btn){
-            if(ele.dataset.screen === screenId){
-                ele.classList.add("is-active");
-            }else {
-                ele.classList.remove("is-active");
-            }
+    for (ele of sidebar__btn) {
+        if (ele.dataset.screen === screenId) {
+            ele.classList.add("is-active");
+        } else {
+            ele.classList.remove("is-active");
+        }
     }
 
 
@@ -75,10 +75,10 @@ function switchScreen(screenId) {
 
 }
 
-    // let screen = document.querySelectorAll(".screen");
-    // for(section of screen){
-    //     section.classList.remove("is-visible");
-    // }
+// let screen = document.querySelectorAll(".screen");
+// for(section of screen){
+//     section.classList.remove("is-visible");
+// }
 
 
 
@@ -98,7 +98,7 @@ function renderStats() {
     const totalEvents = events.length;
     const totalSeats = events.reduce((sum, e) => sum + e.seats, 0);
     const totalPrice = events.reduce((sum, e) => sum + e.price * e.seats, 0);
-    
+
     // Update DOM:
     document.getElementById('stat-total-events').textContent = totalEvents;
     document.getElementById('stat-total-seats').textContent = totalSeats;
@@ -113,66 +113,101 @@ function renderStats() {
 // form.addEventListener("submit", (e) =>{
 //     handleFormSubmit(e);
 // });
-
+let j = 1;
 function handleFormSubmit(e) {
-    // TODO:
-    // 1. Prevent default
-    // 2. Validate form inputs
     e.preventDefault();
-const errorBox = document.getElementById("form-errors");
 
-  errorBox.innerHTML = "";
-  errorBox.classList.add("is-hidden");
+    const errorBox = document.getElementById("form-errors");
+    errorBox.innerHTML = "";
+    errorBox.classList.add("is-hidden");
 
-  const title = document.getElementById("event-title").value.trim();
-  const image = document.getElementById("event-image").value.trim();
-  const seats = document.getElementById("event-seats").value.trim();
-  const price = document.getElementById("event-price").value.trim();
+    // 🔹 Récupération des champs
+    const title = document.getElementById("event-title").value.trim();
+    const image = document.getElementById("event-image").value.trim();
+    const seats = document.getElementById("event-seats").value.trim();
+    const price = document.getElementById("event-price").value.trim();
 
-  const regexTitle = /^[A-Za-z0-9 ]{3,}$/;
-  const regexURL = /^https?:\/\/.+/;
-  const regexNumber = /^[0-9]+(\.[0-9]+)?$/;
+    // 🔹 Regex de validation
+    const regexTitle = /^[A-Za-z0-9 ]{3,}$/;
+    const regexURL = /^https?:\/\/.+/;
+    const regexNumber = /^[0-9]+(\.[0-9]+)?$/;
 
-  let errors = [];
+    let errors = [];
 
-  if (!regexTitle.test(title)) {
-    errors.push("Le titre doit contenir au moins 3 caractères valides.");
-  }
+    // 🔹 Validation des champs
+    if (!regexTitle.test(title)) {
+        errors.push("Le titre doit contenir au moins 3 caractères valides.");
+    }
 
-  if (image && !regexURL.test(image)) {
-    errors.push("L'URL de l'image doit commencer par http ou https.");
-  }
+    if (image && !regexURL.test(image)) {
+        errors.push("L'URL de l'image doit commencer par http ou https.");
+    }
 
-  if (!regexNumber.test(seats) || parseInt(seats) < 1) {
-    errors.push("Le nombre de places doit être un nombre positif.");
-  }
+    if (!regexNumber.test(seats) || parseInt(seats) < 1) {
+        errors.push("Le nombre de places doit être un nombre positif.");
+    }
 
-  if (!regexNumber.test(price) || parseFloat(price) < 0) {
-    errors.push("Le prix doit être un nombre valide supérieur ou égal à 0.");
-  }
+    if (!regexNumber.test(price) || parseFloat(price) < 0) {
+        errors.push("Le prix doit être un nombre valide supérieur ou égal à 0.");
+    }
 
-  if (errors.length > 0) {
-    errorBox.innerHTML = errors.join("<br>");
-    errorBox.classList.remove("is-hidden");
-  }
-            const newEvent = {
-    title: title,
-    image: image,
-    seats: parseInt(seats),
-    price: parseFloat(price),
-    dateCreated: new Date().toISOString(),
-  };
+    // 🔹 Affichage des erreurs si nécessaire
+    if (errors.length > 0) {
+        errorBox.innerHTML = errors.join("<br>");
+        errorBox.classList.remove("is-hidden");
+        return;
+    }
 
-     events.push(newEvent);
-     saveData();
-     renderStats();
+    // =====================================
+    // 🔹 Construction du tableau de variants
+    // =====================================
+    const variantRows = document.querySelectorAll('.variant-row');
+    const newVariants = [];
 
-    alert("Formulaire valide !");
-    form.reset();
-};
+    variantRows.forEach(row => {
+        const name = row.querySelector('.variant-row__name').value.trim();
+        const qty = parseInt(row.querySelector('.variant-row__qty').value);
+        const value = parseFloat(row.querySelector('.variant-row__value').value);
+        const type = row.querySelector('.variant-row__type').value;
 
-    // 3. If valid: create new event object, add to events array, save data, reset form
-    // 4. If invalid: show errors in #form-errors
+        if (name && !isNaN(qty) && !isNaN(value)) {
+            newVariants.push({
+                name,
+                qty,
+                value,
+                type
+            });
+        }
+    });
+    // =====================================
+    // 🔹 Création du nouvel événement
+    // =====================================
+    const newEvent = {
+        id: j,
+        title: title,
+        image: image,
+        seats: parseInt(seats),
+        price: parseFloat(price),
+        dateCreated: new Date().toISOString(),
+        variants: newVariants
+    };
+
+    // =====================================
+    // 🔹 Sauvegarde & mise à jour de l’UI
+    // =====================================
+    events.push(newEvent);
+    j = Number(j + 1);
+    saveData();
+    renderStats();
+    renderEventsTable(events);
+
+    alert("✅ Événement ajouté avec succès !");
+    e.target.reset();
+}
+
+
+// 3. If valid: create new event object, add to events array, save data, reset form
+// 4. If invalid: show errors in #form-errors
 
 let form = document.getElementById('event-form');
 form.addEventListener('submit', handleFormSubmit)
@@ -198,7 +233,7 @@ function addVariantRow() {
     list.appendChild(row);
     row.querySelector('.variant-row__remove').addEventListener('click', () => row.remove());
 }
-document.getElementById('btn-add-variant').addEventListener('click',addVariantRow);
+document.getElementById('btn-add-variant').addEventListener('click', addVariantRow);
 
 // document.getElementById('btn-add-variant').addEventListener('click', addVariantRow)
 
@@ -206,6 +241,7 @@ function removeVariantRow(button) {
     // TODO:
     // Find closest .variant-row and remove it
 }
+
 
 // ============================================
 // EVENTS LIST SCREEN
@@ -218,12 +254,54 @@ function renderEventsTable(eventList, page = 1, perPage = 10) {
     // 3. Add data-event-id to each row
     // 4. Inject into #events-table tbody
     // 5. Call renderPagination()
+    // const DataList = localStorage.getItem('events');
+    // DataList.map((list)=>{
+    //     list 
+    // })
+    const mainTable = document.querySelector('.table__body');
+    for (listEvent of eventList) {
+        const tr = document.createElement('tr');
+        tr.classList.add('table_row');
+        tr.dataset.eventId = listEvent.id;
+        for (let i = 1; i <= eventList.length; i++) {
+            tr.innerHTML = `
+            <td>${listEvent.id}</td>
+            <td>${listEvent.title}</td>
+            <td>${listEvent.seats}</td>
+            <td>$${listEvent.price}</td>
+            <td><span class="badge">${(listEvent.variants ? listEvent.variants.length : 0)}</span></td>
+            <td>
+                <button class="btn btn--small" data-action="details" data-event-id="${listEvent.id}">Details</button>
+                <button class="btn btn--small" data-action="edit" data-event-id="${listEvent.id}">Edit</button>
+                <button class=" delete_btn btn btn--danger btn--small" data-action="archive" data-event-id="${listEvent.id}">Delete</button>
+            </td>
+        `;
+        }
+        mainTable.appendChild(tr);
+        tr.querySelector('.delete_btn').addEventListener('click', () => tr.remove());
+
+    }
+
+
 }
+
 
 function renderPagination(totalItems, currentPage, perPage) {
     // TODO:
     // Calculate total pages
+    const totalPages = Math.ceil(totalItems / perPage);
     // Generate pagination buttons
+    const pagination = document.getElementById('events-pagination');
+    for (let i = 1; i < totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.classList.add('btn', 'btn--small');
+        if (i == currentPage) {
+            btn.classList.add('is-active');
+        }
+        btn.textContent = i;
+        pagination.appendChild(btn);
+    }
+
     // Add .is-active to current page
     // Add .is-disabled to prev/next if at boundary
     // Inject into #events-pagination
@@ -232,6 +310,19 @@ function renderPagination(totalItems, currentPage, perPage) {
 function handleTableActionClick(e) {
     // TODO:
     // 1. Check if e.target is [data-action]
+    const action = e.target.dataset.action;
+    const id = e.target.dataset.eventId;
+    switch (action) {
+        case 'details':
+            showEventDetails(id);
+            break;
+        case 'edit':
+            editEvent(id);
+            break;
+        case 'archive':
+            archiveEvent(id);
+            break;
+    }
     // 2. Get action and eventId from attributes
     // 3. Call appropriate function (showDetails, editEvent, archiveEvent)
     // Use event delegation on #events-table
@@ -242,16 +333,46 @@ function handleTableActionClick(e) {
 function showEventDetails(eventId) {
     // TODO:
     // 1. Find event by id in events array
+    const event = events.find(e => e.id == eventId);
     // 2. Populate #modal-body with event details
     // 3. Remove .is-hidden from #event-modal
+    const content = `
+        <img src="${event.image || 'https://via.placeholder.com/300'}" alt="${event.title}" class="modal__img">
+        <p><strong>Description:</strong> ${event.description || 'No description provided.'}</p>
+        <p><strong>Seats:</strong> ${event.seats}</p>
+        <p><strong>Price:</strong> $${event.price.toFixed(2)}</p>
+    `;
+    openModal(event.title, content);
 }
 
 function editEvent(eventId) {
     // TODO:
     // 1. Find event by id
+    const ev = events.find(e => e.id == eventId);
     // 2. Populate form fields with event data
+    document.getElementById("event-title").value = ev.title;
+    document.getElementById("event-image").value = ev.image;
+    document.getElementById("event-description").value = ev.description;
+    document.getElementById("event-seats").value = ev.seats;
+    document.getElementById("event-price").value = ev.price;
     // 3. Switch to 'add' screen
+    switchScreen('add');
     // 4. On submit, update existing event instead of creating new
+    form.onsubmit = function (e) {
+        e.preventDefault;
+        ev.title = document.getElementById("event-title").value.trim();
+        ev.image = document.getElementById("event-image").value.trim();
+        ev.description = document.getElementById("event-description").value.trim();
+        ev.seats = parseInt(document.getElementById("event-seats").value);
+        ev.price = parseFloat(document.getElementById("event-price").value);
+        saveData();
+        alert("Event updated!");
+        renderEventsTable(events);
+        renderStats();
+        form.reset();
+        form.onsubmit = handleFormSubmit;
+        switchScreen('list');
+    }
 }
 
 function archiveEvent(eventId) {
@@ -288,22 +409,28 @@ function restoreEvent(eventId) {
 
 function openModal(title, content) {
     // TODO:
+    const modal = document.getElementById('event-modal');
+
     // 1. Set #modal-title
     // 2. Set #modal-body content
     // 3. Remove .is-hidden from #event-modal
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = content;
+    modal.classList.remove('is-hidden');
 }
 
 function closeModal() {
     // TODO:
     // Add .is-hidden to #event-modal
+    document.getElementById('event-modal').classList.add('is-hidden');
 }
 
 // Listen to close button and overlay click
-// document.getElementById('event-modal').addEventListener('click', (e) => {
-//     if (e.target.dataset.action === 'close-modal' || e.target.classList.contains('modal__overlay')) {
-//         closeModal()
-//     }
-// })
+document.getElementById('event-modal').addEventListener('click', (e) => {
+    if (e.target.dataset.action === 'close-modal' || e.target.classList.contains('modal__overlay')) {
+        closeModal()
+    }
+})
 
 // ============================================
 // SEARCH & SORT
@@ -341,6 +468,7 @@ function init() {
     // 1. Load data from localStorage
     loadData();
     renderStats();
+    renderEventsTable(events);
     // 2. Render initial screen (statistics)
     // 3. Set up all event listeners
     // 4. Call renderStats(), renderEventsTable(), renderArchiveTable()
@@ -348,39 +476,3 @@ function init() {
 
 // Call on page load
 document.addEventListener('DOMContentLoaded', init);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
