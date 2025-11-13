@@ -123,6 +123,7 @@ function handleFormSubmit(e) {
 
     // 🔹 Récupération des champs
     const title = document.getElementById("event-title").value.trim();
+    const desc = document.getElementById("event-description").value.trim();
     const image = document.getElementById("event-image").value.trim();
     const seats = document.getElementById("event-seats").value.trim();
     const price = document.getElementById("event-price").value.trim();
@@ -186,9 +187,9 @@ function handleFormSubmit(e) {
         id: j,
         title: title,
         image: image,
+        description:desc,
         seats: parseInt(seats),
         price: parseFloat(price),
-        dateCreated: new Date().toISOString(),
         variants: newVariants
     };
 
@@ -328,7 +329,7 @@ function handleTableActionClick(e) {
     // Use event delegation on #events-table
 }
 
-// document.getElementById('events-table').addEventListener('click', handleTableActionClick)
+document.getElementById('events-table').addEventListener('click', handleTableActionClick)
 
 function showEventDetails(eventId) {
     // TODO:
@@ -337,8 +338,8 @@ function showEventDetails(eventId) {
     // 2. Populate #modal-body with event details
     // 3. Remove .is-hidden from #event-modal
     const content = `
-        <img src="${event.image || 'https://via.placeholder.com/300'}" alt="${event.title}" class="modal__img">
-        <p><strong>Description:</strong> ${event.description || 'No description provided.'}</p>
+        <img src="${event.image}" class="modal__img">
+        <p><strong>Description:</strong> ${event.description}</p>
         <p><strong>Seats:</strong> ${event.seats}</p>
         <p><strong>Price:</strong> $${event.price.toFixed(2)}</p>
     `;
@@ -378,7 +379,9 @@ function editEvent(eventId) {
 function archiveEvent(eventId) {
     // TODO:
     // 1. Find event by id in events
+    const index = events.findIndex(e => e.id == eventId);
     // 2. Move to archive array
+    const removed = 
     // 3. Remove from events array
     // 4. Save data
     // 5. Re-render table
