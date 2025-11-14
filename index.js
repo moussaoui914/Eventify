@@ -187,7 +187,7 @@ function handleFormSubmit(e) {
         id: j,
         title: title,
         image: image,
-        description:desc,
+        description: desc,
         seats: parseInt(seats),
         price: parseFloat(price),
         variants: newVariants
@@ -381,10 +381,15 @@ function archiveEvent(eventId) {
     // 1. Find event by id in events
     const index = events.findIndex(e => e.id == eventId);
     // 2. Move to archive array
-    const removed = 
+    const [removed] = events.splice(index, 1);
+    archive.push(removed);
     // 3. Remove from events array
+
     // 4. Save data
+    saveData();
     // 5. Re-render table
+    renderEventsTable(events);
+    renderArchiveTable(archive);
 }
 
 // ============================================
@@ -394,13 +399,35 @@ function archiveEvent(eventId) {
 function renderArchiveTable(archivedList) {
     // TODO:
     // Similar to renderEventsTable but read-only
+    const tbody = document.querySelector('#archive-table tbody');
+    tbody.innerHTML = "";
     // Show "Restore" button instead of "Edit"/"Delete"
+    for (element of archivedList) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${element.id}</td>
+            <td>${element.title}</td>
+            <td>${element.seats}</td>
+            <td>$${element.price}</td>
+            <td><button class="btn btn--small" data-action="restore" data-event-id="${element.id}">Restore</button></td>
+        `;
+        tbody.appendChild(tr);
+    }
 }
+document.getElementById('archive-table').addEventListener('click', (e) => {
+    if (e.target.dataset.action === 'restore') restoreEvent(e.target.dataset.eventId);
+});
 
 function restoreEvent(eventId) {
     // TODO:
     // 1. Find event by id in archive
+    const index = archive.findIndex(e => e.id==eventId);
     // 2. Move back to events array
+    const [restoreEvent] = archive.splice(index,1);
+    events.push(restoreEvent);
+    saveData();
+    renderArchiveTable(archive);
+    renderEventsTable(events);
     // 3. Remove from archive
     // 4. Save data
     // 5. Re-render both tables
@@ -472,6 +499,7 @@ function init() {
     loadData();
     renderStats();
     renderEventsTable(events);
+    renderArchiveTable(archive);
     // 2. Render initial screen (statistics)
     // 3. Set up all event listeners
     // 4. Call renderStats(), renderEventsTable(), renderArchiveTable()
