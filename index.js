@@ -466,27 +466,67 @@ document.getElementById('event-modal').addEventListener('click', (e) => {
 // ============================================
 
 function searchEvents(query) {
-    // TODO:
-    // Filter events by title (case-insensitive)
-    // Return filtered array
-}
+  // TODO:
+  // Filter events by title (case-insensitive)
+  let filteredbytitle = [];
+  events.forEach((e) => {
+    if (e.title.toLowerCase() === query.toLowerCase()) {
+      filteredbytitle.push(e);
+    }
+  });
+  // // Return filtered array
+  console.log(filteredbytitle);
+  
+  return filteredbytitle;
+}   
 
 function sortEvents(eventList, sortType) {
-    // TODO:
-    // Sort by: title-asc, title-desc, price-asc, price-desc, seats-asc
-    // Return sorted array
+  // TODO:
+  // Sort by: title-asc, title-desc, price-asc, price-desc, seats-asc
+  // Return sorted array
+  const sorted = [...eventList];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    for (let j = 0; j < sorted.length - i - 1; j++) {
+      let shouldSwap = false;
+      switch (sortType) {
+        case "title-asc":
+          shouldSwap =
+            sorted[j].title.toLowerCase() > sorted[j + 1].title.toLowerCase();
+          break;
+        case "title-desc":
+          shouldSwap =
+            sorted[j].title.toLowerCase() < sorted[j + 1].title.toLowerCase();
+          break;
+        case "price-asc":
+          shouldSwap = sorted[j].price > sorted[j + 1].price;
+          break;
+        case "price-desc":
+          shouldSwap = sorted[j].price < sorted[j + 1].price;
+          break;
+        case "seats-asc":
+          shouldSwap = sorted[j].seats > sorted[j + 1].seats;
+          break;
+      }
+      if (shouldSwap) {
+        const temp = sorted[j];
+        sorted[j] = sorted[j + 1];
+        sorted[j + 1] = temp;
+      }
+    }
+  }
+  console.log(sorted);
+  return sorted;
 }
-
 // Listen to search and sort changes
-// document.getElementById('search-events').addEventListener('input', (e) => {
-//     const filtered = searchEvents(e.target.value)
-//     renderEventsTable(filtered)
-// })
+document.getElementById('search-events').addEventListener('input', (e) => {
+    const filtered = searchEvents(e.target.value)
+    renderEventsTable(filtered)
+})
 
-// document.getElementById('sort-events').addEventListener('change', (e) => {
-//     const sorted = sortEvents(events, e.target.value)
-//     renderEventsTable(sorted)
-// })
+document.getElementById('sort-events').addEventListener('change', (e) => {
+    const sorted = sortEvents(events, e.target.value)
+    renderEventsTable(sorted)
+})
 
 // ============================================
 // INITIALIZATION
