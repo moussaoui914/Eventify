@@ -260,30 +260,28 @@ function renderEventsTable(eventList, page = 1, perPage = 10) {
     //     list 
     // })
     const mainTable = document.querySelector('.table__body');
-    for (listEvent of eventList) {
+    mainTable.innerHTML = "";  
+
+    for (const listEvent of eventList) {
         const tr = document.createElement('tr');
         tr.classList.add('table_row');
         tr.dataset.eventId = listEvent.id;
-        for (let i = 1; i <= eventList.length; i++) {
-            tr.innerHTML = `
+
+        tr.innerHTML = `
             <td>${listEvent.id}</td>
             <td>${listEvent.title}</td>
             <td>${listEvent.seats}</td>
             <td>$${listEvent.price}</td>
-            <td><span class="badge">${(listEvent.variants ? listEvent.variants.length : 0)}</span></td>
+            <td><span class="badge">${listEvent.variants?.length || 0}</span></td>
             <td>
                 <button class="btn btn--small" data-action="details" data-event-id="${listEvent.id}">Details</button>
                 <button class="btn btn--small" data-action="edit" data-event-id="${listEvent.id}">Edit</button>
-                <button class=" delete_btn btn btn--danger btn--small" data-action="archive" data-event-id="${listEvent.id}">Delete</button>
+                <button class="delete_btn btn btn--danger btn--small" data-action="archive" data-event-id="${listEvent.id}">Delete</button>
             </td>
         `;
-        }
+
         mainTable.appendChild(tr);
-        tr.querySelector('.delete_btn').addEventListener('click', () => tr.remove());
-
     }
-
-
 }
 
 
@@ -360,7 +358,7 @@ function editEvent(eventId) {
     switchScreen('add');
     // 4. On submit, update existing event instead of creating new
     form.onsubmit = function (e) {
-        e.preventDefault;
+        e.preventDefault();
         ev.title = document.getElementById("event-title").value.trim();
         ev.image = document.getElementById("event-image").value.trim();
         ev.description = document.getElementById("event-description").value.trim();
@@ -370,6 +368,7 @@ function editEvent(eventId) {
         alert("Event updated!");
         renderEventsTable(events);
         renderStats();
+        
         form.reset();
         form.onsubmit = handleFormSubmit;
         switchScreen('list');
