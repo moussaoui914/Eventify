@@ -348,39 +348,3 @@ function init() {
 
 // Call on page load
 document.addEventListener('DOMContentLoaded', init);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
